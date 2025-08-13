@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: payment-service
+  datasource:
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL_PAYMENTS}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME}
+  jpa:
+    hibernate:
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO}
+    properties:
+      hibernate:
+        database-platform: ${SPRING_JPA_PROPERTIES_HIBERNATE_DATABASE_PLATFORM}
+
+server:
+  port: 8083
