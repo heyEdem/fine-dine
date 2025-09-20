@@ -1,6 +1,6 @@
 spring:
   application:
-    name: customer-service
+    name: restaurant-service
   datasource:
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
@@ -11,6 +11,22 @@ spring:
       ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO}
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
         database-platform: ${SPRING_JPA_PROPERTIES_HIBERNATE_DATABASE_PLATFORM}
+  security:
+    oauth2:
+      resource-server:
+        jwt:
+          issuer-uri: http://localhost:8081
+          jwk-set-uri: http://localhost:8081/.well-known/jwks.json
 server:
   port: 8085
+aws:
+  sqs:
+    restaurant-queue: fds-restaurant-registration-queue.fifo
+    endpoint: https://sqs.us-east-1.amazonaws.com/082608135264/fds-restaurant-registration-queue.fifo
+logging:
+  level:
+    root: INFO
+    org.springframework.web: DEBUG
+    com.fooddeliverysystem.restaurantservice: DEBUG
