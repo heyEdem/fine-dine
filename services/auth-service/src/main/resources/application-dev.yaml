@@ -12,5 +12,49 @@ spring:
     properties:
       hibernate:
         database-platform: ${SPRING_JPA_PROPERTIES_HIBERNATE_DATABASE_PLATFORM}
+        format_sql: true
+  mail:
+    host: smtp.gmail.com
+    port: 465
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
+          socketFactory:
+            port: 465
+            class: javax.net.ssl.SSLSocketFactory
+            fallback: false
+  security:
+    oauth2:
+      authorization-server:
+        endpoint:
+          jwk-set-uri: "http://localhost:8081/.well-known/jwks.json"
+
 server:
   port: 8081
+
+aws:
+  s3:
+    region: ${AWS_REGION}
+    bucket-name: ${AWS_S3_BUCKET_NAME}
+  sqs:
+    restaurant:
+      restaurant-registration-queue: fds-restaurant-registration-queue.fifo
+      endpoint: https://sqs.us-east-1.amazonaws.com/082608135264/fds-restaurant-registration-queue.fifo
+
+    rider:
+      rider-registration-queue: fds-rider-registration-queue.fifo
+      endpoint: https://sqs.us-east-1.amazonaws.com/082608135264/fds-rider-registration-queue.fifo
+
+    customer:
+      customer-registration-queue: fds-customer-registration-queue.fifo
+      endpoint: https://sqs.us-east-1.amazonaws.com/082608135264/fds-customer-registration-queue.fifo
+
+rsa:
+  public-key: classpath:certs/public.pem
+  private-key: classpath:certs/private.pem
+  key-rotation-interval: 604800
