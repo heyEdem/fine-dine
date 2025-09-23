@@ -22,6 +22,7 @@ import static com.finedine.restaurantservice.util.CustomMessages.RESTRICTED_ACTI
 public class RestaurantServiceImpl implements RestaurantService{
 
     private final RestaurantRepository restaurantRepository;
+    private static final double AVERAGE_SPEED_KMH = 30.0;
 
     @SqsListener(value = "fds-restaurant-registration-queue.fifo")
     @Override
@@ -32,7 +33,8 @@ public class RestaurantServiceImpl implements RestaurantService{
             restaurantCode = generateRestaurantCode();
         } while (!isRestaurantCodeUnique(restaurantCode));
 
-        System.out.println("Received new restaurant data: " + data);
+        log.info("Received new restaurant data: {}", data);
+
         Restaurant restaurant = Restaurant.builder()
                 .email(data.email())
                 .accountId(data.accountId())
@@ -61,6 +63,8 @@ public class RestaurantServiceImpl implements RestaurantService{
         return restaurant;
 
     }
+
+
 
     private String generateRestaurantCode() {
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

@@ -24,7 +24,7 @@ public class RiderServiceImpl implements RiderService {
     @Override
     public void createRider(RiderRegistrationQueue data) {
 
-        System.out.println("Received new rider data: " + data);
+        log.info("Received new rider data: {}", data);
 
         Rider rider = Rider.builder()
                 .email(data.email())
@@ -34,7 +34,6 @@ public class RiderServiceImpl implements RiderService {
                 .licensePlateNumber(data.licensePlateNumber() != null ? data.licensePlateNumber() : "N/A")
                 .lastName(data.lastName())
                 .phoneNumber(data.phoneNumber())
-                .profilePictureUrl(data.profilePictureUrl())
                 .vehicleColor(data.vehicleColor())
                 .vehicleType(data.vehicleType())
                 .address(data.address())
@@ -47,7 +46,7 @@ public class RiderServiceImpl implements RiderService {
     public Rider myRider(SecurityUser securityUser) {
 
         Rider restaurant = riderRepository.findByExternalId(securityUser.externalId())
-                .orElseThrow(() -> new NotFoundException("Rider mot found"));
+                .orElseThrow(() -> new NotFoundException("Rider not found"));
 
         if (securityUser.externalId() != null && !securityUser.externalId().equals(restaurant.getExternalId())) {
             throw new UnauthorizedException("Restricted Action");

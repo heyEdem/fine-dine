@@ -33,7 +33,7 @@ public class CustomerServiceImpl implements CustomerService {
 
         addresses.add(data.address());
 
-        System.out.println("Received new customer data: " + data);
+        log.info("Received new customer data: {}", data);
 
         Customer customer = Customer.builder()
                 .email(data.email())
@@ -44,7 +44,6 @@ public class CustomerServiceImpl implements CustomerService {
                 .phoneNumber(data.phoneNumber())
                 .profilePictureUrl(data.profilePictureUrl())
                 .address(addresses)
-                .profilePictureUrl(data.profilePictureUrl())
                 .build();
         customerRepository.save(customer);
     }
