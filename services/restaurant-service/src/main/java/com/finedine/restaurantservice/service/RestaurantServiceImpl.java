@@ -18,8 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Random;
 
-import static com.finedine.restaurantservice.util.CustomMessages.RESTAURANT_NOT_FOUND;
-import static com.finedine.restaurantservice.util.CustomMessages.RESTRICTED_ACTION;
+import static com.finedine.restaurantservice.util.CustomMessages.*;
 
 @Service
 @Slf4j
@@ -31,6 +30,9 @@ public class RestaurantServiceImpl implements RestaurantService{
     private final MenuRepository menuRepository;
     private static final double AVERAGE_SPEED_KMH = 30.0;
 
+    /**
+     {@inheritDoc}
+     */
     @SqsListener(value = "fds-restaurant-registration-queue.fifo")
     @Override
     public void createRestaurantEntry(RestaurantQueueObject data) {
@@ -42,39 +44,41 @@ public class RestaurantServiceImpl implements RestaurantService{
 
         log.info("Received new restaurant data: {}", data);
 
-        Restaurant restaurant = buildRestaurant(data);
+        Restaurant restaurant = restaurantMapper.toRestaurant(data);
 
         restaurant.setRestaurantCode(generateRestaurantCode());
 
         restaurantRepository.save(restaurant);
     }
 
+    /**
+     {@inheritDoc}
+     */
     @Override
     public RestaurantResponse myRestaurant(SecurityUser securityUser) {
 
-        log.info("Fetching restaurant for user: {}", securityUser);
-        Restaurant restaurant = restaurantRepository.findByExternalId(securityUser.externalId())
-                .orElseThrow(() -> new NotFoundException(RESTAURANT_NOT_FOUND));
+        Restaurant restaurant = findByExternalId(securityUser);
 
-        RestaurantResponse response = restaurantMapper.toRestaurantResponse(restaurant);
+        validateTenant(securityUser, restaurant);
 
-        if (securityUser.externalId() != null && !securityUser.externalId().equals(restaurant.getExternalId())) {
-            throw new UnauthorizedException(RESTRICTED_ACTION);
-        }
-
-        return response;
+        return restaurantMapper.toRestaurantResponse(restaurant);
 
     }
 
+    /**
+     {@inheritDoc}
+     */
     @Override
     public Page<RestaurantResponse> allRestaurants(Pageable pageable) {
         Page<Restaurant> restaurants = restaurantRepository.findAll(pageable);
         return restaurants.map(restaurantMapper::toRestaurantResponse);
     }
 
+    /**
+     {@inheritDoc}
+     */
     @Override
     public Page<RestaurantResponse> nearByRestaurants(Pageable pageable, double userLat, double userLon, double radiusKm) {
-        log.info("Fetching restaurants near user: lat: {}, lon: {}, radius: {} km", userLat, userLon, radiusKm);
 
         return restaurantRepository.findAllByDeletedAtIsNullAndWithinRadius(userLat, userLon, radiusKm, pageable)
                 .map(restaurant -> {
@@ -98,15 +102,15 @@ public class RestaurantServiceImpl implements RestaurantService{
                 });
     }
 
+    /**
+     {@inheritDoc}
+     */
     @Override
     public RestaurantResponse profileSettings(SecurityUser securityUser, RestaurantUpdateRequest request) {
 
-        Restaurant restaurant = restaurantRepository.findByExternalId(securityUser.externalId())
-                .orElseThrow(() -> new NotFoundException(RESTAURANT_NOT_FOUND));
+        Restaurant restaurant = findByExternalId(securityUser);
 
-        if (securityUser.externalId() != null && !securityUser.externalId().equals(restaurant.getExternalId())) {
-            throw new UnauthorizedException(RESTRICTED_ACTION);
-        }
+        validateTenant(securityUser, restaurant);
 
         restaurantMapper.updateRestaurantFromRequest(request, restaurant);
         restaurantRepository.save(restaurant);
@@ -114,13 +118,14 @@ public class RestaurantServiceImpl implements RestaurantService{
         return restaurantMapper.toRestaurantResponse(restaurant);
     }
 
+    /**
+     {@inheritDoc}
+     */
     @Override
     public GenericMessageResponse addMenuItem(SecurityUser securityUser, MenuItemRequest request) {
         Restaurant restaurant = findByExternalId(securityUser);
 
-        if (securityUser.externalId() != null && !securityUser.externalId().equals(restaurant.getExternalId())) {
-            throw new UnauthorizedException(RESTRICTED_ACTION);
-        }
+        validateTenant(securityUser, restaurant);
 
         MenuItem menuItem = MenuItem.builder()
                 .name(request.name())
@@ -132,19 +137,20 @@ public class RestaurantServiceImpl implements RestaurantService{
                 .build();
 
         menuRepository.save(menuItem);
-        return new GenericMessageResponse("Menu item added successfully");
+        return new GenericMessageResponse(MENU_ITEM_ADDED_SUCCESS);
     }
 
+    /**
+     {@inheritDoc}
+     */
     @Override
     public GenericMessageResponse updateMenuItem(SecurityUser securityUser, Long menuItemId, MenuItemRequest request) {
         Restaurant restaurant = findByExternalId(securityUser);
 
-        if (securityUser.externalId() != null && !securityUser.externalId().equals(restaurant.getExternalId())) {
-            throw new UnauthorizedException(RESTRICTED_ACTION);
-        }
+        validateTenant(securityUser, restaurant);
 
         MenuItem menuItem = menuRepository.findByIdAndRestaurantId(menuItemId, restaurant.getRestaurantId())
-                .orElseThrow(() -> new NotFoundException("Menu item not found"));
+                .orElseThrow(() -> new NotFoundException(MENU_ITEM_NOT_FOUND));
 
         menuItem.setName(request.name());
         menuItem.setDescription(request.description());
@@ -153,52 +159,38 @@ public class RestaurantServiceImpl implements RestaurantService{
         menuItem.setIsAvailable(request.isAvailable());
 
         menuRepository.save(menuItem);
-        return new GenericMessageResponse("Menu item updated successfully");
+        return new GenericMessageResponse(MENU_ITEM_UPDATED_SUCCESS);
     }
 
+    /**
+     {@inheritDoc}
+     */
     @Override
     public GenericMessageResponse deleteMenuItem(SecurityUser securityUser, Long menuItemId) {
         Restaurant restaurant = findByExternalId(securityUser);
 
-        if (securityUser.externalId() != null && !securityUser.externalId().equals(restaurant.getExternalId())) {
-            throw new UnauthorizedException(RESTRICTED_ACTION);
-        }
+        validateTenant(securityUser, restaurant);
 
         MenuItem menuItem = menuRepository.findByIdAndRestaurantId(menuItemId, restaurant.getRestaurantId())
-                .orElseThrow(() -> new NotFoundException("Menu item not found"));
+                .orElseThrow(() -> new NotFoundException(MENU_ITEM_NOT_FOUND));
 
         menuRepository.delete(menuItem);
-        return new GenericMessageResponse("Menu item deleted successfully");
+        return new GenericMessageResponse(MENU_ITEM_DELETED_SUCCESS);
     }
 
+    /**
+     {@inheritDoc}
+     */
     @Override
     public Page<MenuItemResponse> getRestaurantMenu(Long restaurantId, Pageable pageable) {
         return menuRepository.findByRestaurantId(restaurantId, pageable);
-    }
-
-
-    private Restaurant buildRestaurant(RestaurantQueueObject data){
-        return Restaurant.builder()
-                .email(data.email())
-                .accountId(data.accountId())
-                .externalId(data.externalId())
-                .restaurantName(data.restaurantName())
-                .address(data.address())
-                .phone(data.phone())
-                .cuisine(data.cuisine())
-                .description(data.description())
-                .logoUrl(data.imageUrl())
-                .latitude(data.latitude())
-                .longitude(data.longitude())
-                .openTime(data.openTime())
-                .closeTime(data.closeTime())
-                .build();
     }
 
     private Restaurant findByExternalId(SecurityUser securityUser){
         return restaurantRepository.findByExternalId(securityUser.externalId())
                 .orElseThrow(() -> new NotFoundException(RESTAURANT_NOT_FOUND));
     }
+
     private String generateRestaurantCode() {
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         Random random = new Random();
@@ -222,5 +214,11 @@ public class RestaurantServiceImpl implements RestaurantService{
                 * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c;
+    }
+
+    private void validateTenant(SecurityUser securityUser, Restaurant restaurant) {
+        if (securityUser.externalId() != null && !securityUser.externalId().equals(restaurant.getExternalId())) {
+            throw new UnauthorizedException(RESTRICTED_ACTION);
+        }
     }
 }

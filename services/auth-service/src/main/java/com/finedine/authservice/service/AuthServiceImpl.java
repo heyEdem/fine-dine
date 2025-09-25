@@ -18,7 +18,6 @@ import com.finedine.authservice.repository.AccountRepository;
 import com.finedine.authservice.security.SecurityUser;
 import com.finedine.authservice.security.TokenManager;
 import com.finedine.authservice.util.Common;
-import com.finedine.authservice.util.RestaurantMapper;
 import com.finedine.authservice.util.config.SqsProducer;
 import com.finedine.authservice.util.contraints.CustomValidator;
 import jakarta.transaction.Transactional;
@@ -50,7 +49,6 @@ public class AuthServiceImpl implements AuthService {
     private final TokenManager tokenManager;
     private final Common common;
     private final ImageService imageService;
-    private final RestaurantMapper restaurantMapper;
     private final SqsProducer sqsProducer;
     private final OtpService otpService;
     private static final String EXTERNAL_ID_FORMAT = "account-%s";
@@ -250,16 +248,17 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private Account createAndSaveAccount(String email, String rawPassword, String firstName, String lastName, String phone, Role role) {
-
-        String passwordError = CustomValidator.validatePassword(rawPassword);
-        String emailError = CustomValidator.validateEmail(email);
-        String phoneError = CustomValidator.validatePhoneNumber(phone);
-
         Optional<Account> byEmail = accountRepository.findByEmail(email);
 
         if(byEmail.isPresent()){
             throw new DuplicateKeyException(EMAIL_ALREADY_EXISTS);
         }
+
+        String passwordError = CustomValidator.validatePassword(rawPassword);
+        String emailError = CustomValidator.validateEmail(email);
+        String phoneError = CustomValidator.validatePhoneNumber(phone);
+
+
 
         if (passwordError != null) {
             throw new IllegalArgumentException(passwordError);

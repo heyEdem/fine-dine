@@ -48,7 +48,11 @@ public class ImageFilesValidator implements ConstraintValidator<ImageFiles, Obje
         if (originalFilename == null || contentType == null) {
             return false;
         }
-        String extension = originalFilename.substring(originalFilename.lastIndexOf('.') + 1).toLowerCase();
-        return ALLOWED_EXTENSIONS.contains(extension) && ALLOWED_MIME_TYPES.contains(contentType);
+
+        int lastDotIndex = originalFilename.lastIndexOf('.');
+        if (lastDotIndex < 0 || lastDotIndex == originalFilename.length() - 1) {
+            return false;
+        }
+        String extension = originalFilename.substring(lastDotIndex + 1).toLowerCase();        return ALLOWED_EXTENSIONS.contains(extension) && ALLOWED_MIME_TYPES.contains(contentType);
     }
 }
