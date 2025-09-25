@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DatabaseMigrationSettings" lastSelectedDirectory="services/auth-service/src/main/resources/db.migrations" />
+  <component name="PersistenceUnitSettings">
+    <persistence-units>
+      <persistence-unit moduleName="auth-service" name="Default">
+        <packages>
+          <package value="com.finedine.authservice" />
+        </packages>
+      </persistence-unit>
+    </persistence-units>
+  </component>
+</project>

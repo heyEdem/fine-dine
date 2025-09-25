@@ -25,6 +25,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -168,6 +169,10 @@ public class AuthServiceImpl implements AuthService {
                 .cuisine(request.cuisine())
                 .description(request.description())
                 .imageUrl(imageUrl)
+                .latitude(request.latitude())
+                .longitude(request.longitude())
+                .openTime(request.openTime())
+                .closeTime(request.closeTime())
                 .build();
 
         otpService.generateAndSendOtp(account.getEmail(), OtpType.CREATE);
@@ -249,6 +254,12 @@ public class AuthServiceImpl implements AuthService {
         String passwordError = CustomValidator.validatePassword(rawPassword);
         String emailError = CustomValidator.validateEmail(email);
         String phoneError = CustomValidator.validatePhoneNumber(phone);
+
+        Optional<Account> byEmail = accountRepository.findByEmail(email);
+
+        if(byEmail.isPresent()){
+            throw new DuplicateKeyException(EMAIL_ALREADY_EXISTS);
+        }
 
         if (passwordError != null) {
             throw new IllegalArgumentException(passwordError);

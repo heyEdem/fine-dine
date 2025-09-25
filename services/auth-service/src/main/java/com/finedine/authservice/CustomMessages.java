@@ -17,6 +17,7 @@ public class CustomMessages {
     public static final String LATITUDE_NOT_NULL = "Latitude cannot be null";
     public static final String USER_NOT_FOUND = "No such user";
     public static final String VERIFICATION_FAILED = "Something went wrong, could not send email";
+    public static final String EMAIL_ALREADY_EXISTS = "An account with the provided email already exists";
     public static final String OTP_VERIFICATION_FAILED_MESSAGE = "Could not verify this OTP";
     public static final String EMAIL_MISMATCH_MESSAGE = "Could not verify email for this OTP";
     public static final String OTP_EXPIRED_MESSAGE = "OTP expired";
