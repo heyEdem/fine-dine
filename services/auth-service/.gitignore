@@ -32,4 +32,4 @@ build/
 ### VS Code ###
 .vscode/
 
-services/auth-service/src/main/resources/certs
+services/auth-service/src/main/resources/certs/*

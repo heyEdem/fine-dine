@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Objects;
 
 @Setter
@@ -41,13 +42,19 @@ public class Restaurant {
 
     private String address;
 
-    private Long latitude;
+    private Double latitude;
 
-    private Long longitude;
+    private Double longitude;
 
     private String cuisine;
 
     private String description;
+
+    @Column
+    private LocalTime openTime;
+
+    @Column
+    private LocalTime closeTime;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
@@ -62,11 +69,11 @@ public class Restaurant {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Restaurant that)) return false;
-        return Objects.equals(getRestaurantId(), that.getRestaurantId()) && Objects.equals(getEmail(), that.getEmail()) && Objects.equals(getRestaurantName(), that.getRestaurantName()) && Objects.equals(getRestaurantCode(), that.getRestaurantCode()) && Objects.equals(getPhone(), that.getPhone()) && Objects.equals(getLogoUrl(), that.getLogoUrl()) && Objects.equals(getAddress(), that.getAddress()) && Objects.equals(getLatitude(), that.getLatitude()) && Objects.equals(getLongitude(), that.getLongitude()) && Objects.equals(getCuisine(), that.getCuisine()) && Objects.equals(getDescription(), that.getDescription()) && Objects.equals(getCreatedAt(), that.getCreatedAt()) && Objects.equals(getUpdatedAt(), that.getUpdatedAt()) && Objects.equals(getDeletedAt(), that.getDeletedAt());
+        return Objects.equals(getRestaurantId(), that.getRestaurantId()) && Objects.equals(getAccountId(), that.getAccountId()) && Objects.equals(getExternalId(), that.getExternalId()) && Objects.equals(getEmail(), that.getEmail()) && Objects.equals(getRestaurantName(), that.getRestaurantName()) && Objects.equals(getRestaurantCode(), that.getRestaurantCode()) && Objects.equals(getPhone(), that.getPhone()) && Objects.equals(getLogoUrl(), that.getLogoUrl()) && Objects.equals(getAddress(), that.getAddress()) && Objects.equals(getLatitude(), that.getLatitude()) && Objects.equals(getLongitude(), that.getLongitude()) && Objects.equals(getCuisine(), that.getCuisine()) && Objects.equals(getDescription(), that.getDescription()) && Objects.equals(getOpenTime(), that.getOpenTime()) && Objects.equals(getCloseTime(), that.getCloseTime()) && Objects.equals(getCreatedAt(), that.getCreatedAt()) && Objects.equals(getUpdatedAt(), that.getUpdatedAt()) && Objects.equals(getDeletedAt(), that.getDeletedAt());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getRestaurantId(), getEmail(), getRestaurantName(), getRestaurantCode(), getPhone(), getLogoUrl(), getAddress(), getLatitude(), getLongitude(), getCuisine(), getDescription(), getCreatedAt(), getUpdatedAt(), getDeletedAt());
+        return Objects.hash(getRestaurantId(), getAccountId(), getExternalId(), getEmail(), getRestaurantName(), getRestaurantCode(), getPhone(), getLogoUrl(), getAddress(), getLatitude(), getLongitude(), getCuisine(), getDescription(), getOpenTime(), getCloseTime(), getCreatedAt(), getUpdatedAt(), getDeletedAt());
     }
 }

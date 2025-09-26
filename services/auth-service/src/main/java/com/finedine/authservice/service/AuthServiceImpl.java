@@ -18,13 +18,13 @@ import com.finedine.authservice.repository.AccountRepository;
 import com.finedine.authservice.security.SecurityUser;
 import com.finedine.authservice.security.TokenManager;
 import com.finedine.authservice.util.Common;
-import com.finedine.authservice.util.RestaurantMapper;
 import com.finedine.authservice.util.config.SqsProducer;
 import com.finedine.authservice.util.contraints.CustomValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -49,7 +49,6 @@ public class AuthServiceImpl implements AuthService {
     private final TokenManager tokenManager;
     private final Common common;
     private final ImageService imageService;
-    private final RestaurantMapper restaurantMapper;
     private final SqsProducer sqsProducer;
     private final OtpService otpService;
     private static final String EXTERNAL_ID_FORMAT = "account-%s";
@@ -168,6 +167,10 @@ public class AuthServiceImpl implements AuthService {
                 .cuisine(request.cuisine())
                 .description(request.description())
                 .imageUrl(imageUrl)
+                .latitude(request.latitude())
+                .longitude(request.longitude())
+                .openTime(request.openTime())
+                .closeTime(request.closeTime())
                 .build();
 
         otpService.generateAndSendOtp(account.getEmail(), OtpType.CREATE);
@@ -245,10 +248,17 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private Account createAndSaveAccount(String email, String rawPassword, String firstName, String lastName, String phone, Role role) {
+        Optional<Account> byEmail = accountRepository.findByEmail(email);
+
+        if(byEmail.isPresent()){
+            throw new DuplicateKeyException(EMAIL_ALREADY_EXISTS);
+        }
 
         String passwordError = CustomValidator.validatePassword(rawPassword);
         String emailError = CustomValidator.validateEmail(email);
         String phoneError = CustomValidator.validatePhoneNumber(phone);
+
+
 
         if (passwordError != null) {
             throw new IllegalArgumentException(passwordError);

@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalTime;
+
 import static com.finedine.authservice.CustomMessages.*;
 
 /**
@@ -29,11 +31,13 @@ public record RestaurantRegistrationRequest(
     @NotBlank(message = ADDRESS_NOT_BLANK)
     String address,
     @NotNull(message = LONGITUDE_NOT_NULL)
-    Long longitude,
+    Double longitude,
     @NotNull(message = LATITUDE_NOT_NULL)
-    Long latitude,
+    Double latitude,
     String cuisine,
     String description,
+    LocalTime openTime,
+    LocalTime closeTime,
     @ImageFiles(message = PHOTO_MUST_BE_VALID)
     MultipartFile image
     ){
