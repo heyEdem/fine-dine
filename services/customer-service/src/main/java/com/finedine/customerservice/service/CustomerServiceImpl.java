@@ -1,19 +1,26 @@
 package com.finedine.customerservice.service;
 
 import com.finedine.customerservice.dto.CustomerCreationQueueObject;
+import com.finedine.customerservice.dto.CustomerResponse;
+import com.finedine.customerservice.dto.CustomerUpdateRequest;
+import com.finedine.customerservice.dto.OrderResponse;
 import com.finedine.customerservice.entity.Customer;
 import com.finedine.customerservice.exception.NotFoundException;
 import com.finedine.customerservice.exception.UnauthorizedException;
 import com.finedine.customerservice.repository.CustomerRepository;
 import com.finedine.customerservice.security.SecurityUser;
+import com.finedine.customerservice.util.CustomerMapper;
 import io.awspring.cloud.sqs.annotation.SqsListener;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.finedine.customerservice.util.CustomMessages.*;
 
 
 @Service
@@ -22,6 +29,7 @@ import java.util.List;
 public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
+    private final CustomerMapper customerMapper;
 
     /**
      {@inheritDoc}
@@ -35,16 +43,8 @@ public class CustomerServiceImpl implements CustomerService {
 
         log.info("Received new customer data: {}", data);
 
-        Customer customer = Customer.builder()
-                .email(data.email())
-                .externalId(data.externalId())
-                .accountId(data.accountId())
-                .firstName(data.firstName())
-                .lastName(data.lastName())
-                .phoneNumber(data.phoneNumber())
-                .profilePictureUrl(data.profilePictureUrl())
-                .address(addresses)
-                .build();
+        Customer customer = customerMapper.toCustomer(data);
+
         customerRepository.save(customer);
     }
 
@@ -53,16 +53,51 @@ public class CustomerServiceImpl implements CustomerService {
      {@inheritDoc}
     */
     @Override
-    public Customer myCustomerProfile(SecurityUser securityUser) {
+    public Customer myProfile(SecurityUser securityUser) {
 
-        Customer customer = customerRepository.findByExternalId(securityUser.externalId())
-                .orElseThrow(() -> new NotFoundException("Customer not found"));
+        Customer customer = findByExternalId(securityUser);
 
-        if (securityUser.externalId() != null && !securityUser.externalId().equals(customer.getExternalId())) {
-            throw new UnauthorizedException("Restricted action");
-        }
+        validateTenant(securityUser, customer);
 
         return customer;
     }
 
+
+    /**
+     {@inheritDoc}
+     */
+    @Override
+    public CustomerResponse profileSettings(SecurityUser securityUser, CustomerUpdateRequest request) {
+        Customer customer = findByExternalId(securityUser);
+
+        validateTenant(securityUser, customer);
+
+        customerMapper.updateCustomerFromRequest(request, customer);
+        customerRepository.save(customer);
+
+        return customerMapper.toCustomerResponse(customer);
+    }
+
+
+    /**
+     {@inheritDoc}
+     */
+    @Override
+    public Page<OrderResponse> getCustomerOrders(SecurityUser securityUser, Pageable pageable) {
+        Customer customer = findByExternalId(securityUser);
+        //rest api call to order service to get orders by customer externalId
+        return null;
+    }
+
+
+    private Customer findByExternalId(SecurityUser securityUser){
+        return customerRepository.findByExternalId(securityUser.externalId())
+                .orElseThrow(() -> new NotFoundException(CUSTOMER_NOT_FOUND));
+    }
+
+    private void validateTenant(SecurityUser securityUser, Customer customer) {
+        if (securityUser.externalId() != null && !securityUser.externalId().equals(customer.getExternalId())) {
+            throw new UnauthorizedException(RESTRICTED_ACTION);
+        }
+    }
 }
