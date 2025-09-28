@@ -2,10 +2,10 @@ package com.finedine.riderservice.entity;
 
 /*
  * Enum representing the status of a rider in the FineDine application.
- * Each status indicates whether a rider is currently active for orders or inactive.
+ * Each status indicates whether a rider is currently online for orders or offline.
  */
 
 public enum Status {
-    ACTIVE,
-    INACTIVE
+    ONLINE,
+    OFFLINE
 }

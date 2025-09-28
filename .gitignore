@@ -33,4 +33,4 @@ build/
 .vscode/
 
 /services/environment.env
-environment.env
+services/auth-service/src/main/resources/certs/
