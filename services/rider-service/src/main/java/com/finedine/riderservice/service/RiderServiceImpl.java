@@ -132,7 +132,7 @@ public class RiderServiceImpl implements RiderService {
     public String updateLocation(SecurityUser securityUser, String location) {
         Rider rider = findRiderIfExists(securityUser.externalId());
         rider.setCurrentLocation(location);
-
+        riderRepository.save(rider);
         return location;
     }
 

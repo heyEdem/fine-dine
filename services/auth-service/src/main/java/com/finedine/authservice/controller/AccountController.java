@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class AccountController {
     private final AccountService authService;
 
-    @GetMapping("/account/{id}")
+    @GetMapping("/{id}")
     public Account viewAccount(@PathVariable("id") Long id){
         return authService.getAccount(id);
     }
@@ -35,7 +35,7 @@ public class AccountController {
         return authService.getAllVerifiedUsers(pageable);
     }
 
-    @DeleteMapping("/account/{id}/delete")
+    @DeleteMapping("/{id}")
     public GenericMessageResponse deleteAccount(@PathVariable("id") Long id){
         return authService.deleteAccount(id);
     }
