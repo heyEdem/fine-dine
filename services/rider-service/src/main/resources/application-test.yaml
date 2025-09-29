@@ -10,13 +10,5 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
-  security:
-    oauth2:
-      resource-server:
-        jwt:
-          issuer-uri: http://localhost:8081
-          jwk-set-uri: http://localhost:8081/.well-known/jwks.json
-  aws:
-    region: us-east-1
 server :
   port: 8087
