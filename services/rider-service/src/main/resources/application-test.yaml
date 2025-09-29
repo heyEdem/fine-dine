@@ -16,5 +16,13 @@ spring:
         jwt:
           issuer-uri: http://localhost:8081
           jwk-set-uri: http://localhost:8081/.well-known/jwks.json
+  aws:
+    sqs:
+      enabled: false
+  spring:
+    cloud:
+      aws:
+        sqs:
+          enabled: false
 server :
   port: 8087
