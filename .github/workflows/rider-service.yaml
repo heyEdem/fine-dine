@@ -16,8 +16,12 @@ jobs:
           java-version: 21
           distribution: 'zulu'
       - name: execute tests
-        run: mvn test
-        working-directory: services/rider-service
+        run: |
+          pwd
+          ls 
+          mvn test
+
+#        working-directory: services/rider-service
 
   build:
     name: Build and analyze
@@ -47,4 +51,4 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=The-Inside_fine-dine
-        working-directory: /services/rider-service
+        working-directory: services/rider-service
