@@ -16,7 +16,7 @@ jobs:
           java-version: 21
           distribution: 'zulu'
       - name: execute tests
-        run: mvn -pl services/rider-service/src/test/java/com/finedine/riderservice test
+        run: mvn -pl services/rider-service test
 
   build:
     name: Build and analyze
