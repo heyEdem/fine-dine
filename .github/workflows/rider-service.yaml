@@ -5,13 +5,13 @@ on:
       - main
   pull_request:
     types: [opened, synchronize, reopened]
+env:
+  AWS_REGION: us-east-1
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 jobs:
   testing:
     name: Run tests
-    env:
-      AWS_REGION: us-east-1
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -26,15 +26,11 @@ jobs:
         run: |
           pwd
           ls 
-          mvn test 
-
+          mvn test
         working-directory: services/rider-service
-
   build:
     name: Build and analyze
     runs-on: ubuntu-latest
-    env:
-      AWS_REGION: us-east-1
     steps:
       - uses: actions/checkout@v4
         with:
