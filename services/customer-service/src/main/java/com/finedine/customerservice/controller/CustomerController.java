@@ -16,15 +16,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@RequestMapping("/api/v1/restaurants")
+@RequestMapping("/api/v1/customers")
 public class CustomerController {
 
     private final CustomerService customerService;
 
-    @GetMapping("/customer-profile")
+    @GetMapping("/profile")
     @PreAuthorize("hasRole('CUSTOMER')")
     @ResponseStatus(HttpStatus.OK)
-    public Customer myRestaurant(@AuthenticationPrincipal SecurityUser securityUser) {
+    public Customer myProfile(@AuthenticationPrincipal SecurityUser securityUser) {
         return customerService.myCustomerProfile(securityUser);
     }
 

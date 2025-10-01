@@ -46,7 +46,7 @@ public class RestaurantServiceImpl implements RestaurantService{
 
         Restaurant restaurant = restaurantMapper.toRestaurant(data);
 
-        restaurant.setRestaurantCode(generateRestaurantCode());
+        restaurant.setRestaurantCode(restaurantCode);
 
         restaurantRepository.save(restaurant);
     }

@@ -50,6 +50,9 @@ public class Rider {
     @Enumerated(EnumType.STRING)
     private VehicleType vehicleType;
 
+    @Enumerated(EnumType.STRING)
+    private Availability availability;
+
     private String vehicleColor;
 
     private String licensePlateNumber;
@@ -58,6 +61,9 @@ public class Rider {
 
     @Column(nullable = false)
     private String profilePictureUrl;
+
+    @Column
+    private String currentLocation;
 
     @CreationTimestamp
     private LocalDate createdAt;
