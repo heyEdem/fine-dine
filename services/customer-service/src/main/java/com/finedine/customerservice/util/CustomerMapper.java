@@ -17,9 +17,8 @@ public interface CustomerMapper {
     @Mapping(target = "address", source = "address", qualifiedByName = "stringToList")
     Customer toCustomer(CustomerCreationQueueObject data);
 
-    @Mapping(target = "address", source = "address", qualifiedByName = "stringToList")
+    @Mapping(target = "address", ignore = true)
     void updateCustomerFromRequest(CustomerUpdateRequest request, @MappingTarget Customer customer);
-
     @Named("stringToList")
     default List<String> mapStringToList(String address) {
         return (address != null && !address.isBlank())

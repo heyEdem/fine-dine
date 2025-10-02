@@ -61,6 +61,11 @@ public class CustomerServiceImpl implements CustomerService {
         validateTenant(securityUser, customer);
 
         customerMapper.updateCustomerFromRequest(request, customer);
+
+        if (request.address() != null && !request.address().isBlank()) {
+            customer.getAddress().add(request.address());
+        }
+
         customerRepository.save(customer);
 
         return customerMapper.toCustomerResponse(customer);
