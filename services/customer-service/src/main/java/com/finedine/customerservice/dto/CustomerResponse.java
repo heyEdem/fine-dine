@@ -2,14 +2,16 @@ package com.finedine.customerservice.dto;
 
 import lombok.Builder;
 
+import java.util.List;
+
 @Builder
 public record CustomerResponse(
-        Long externalId,
+        String externalId,
         String firstName,
         String lastName,
         String email,
         String phoneNumber,
-        String address,
+        List<String> address,
         String profilePictureUrl
 ) {
 }

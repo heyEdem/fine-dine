@@ -4,14 +4,27 @@ import com.finedine.customerservice.dto.CustomerCreationQueueObject;
 import com.finedine.customerservice.dto.CustomerResponse;
 import com.finedine.customerservice.dto.CustomerUpdateRequest;
 import com.finedine.customerservice.entity.Customer;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 
-@Mapper(componentModel = "spring")
+import java.util.ArrayList;
+import java.util.List;
+
+@Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface CustomerMapper {
+
     CustomerResponse toCustomerResponse(Customer customer);
 
+    @Mapping(target = "address", source = "address", qualifiedByName = "stringToList")
     Customer toCustomer(CustomerCreationQueueObject data);
-    void updateCustomerFromRequest(CustomerUpdateRequest request, @MappingTarget Customer restaurant);
+
+    @Mapping(target = "address", source = "address", qualifiedByName = "stringToList")
+    void updateCustomerFromRequest(CustomerUpdateRequest request, @MappingTarget Customer customer);
+
+    @Named("stringToList")
+    default List<String> mapStringToList(String address) {
+        return (address != null && !address.isBlank())
+                ? List.of(address)
+                : new ArrayList<>();
+    }
 
 }

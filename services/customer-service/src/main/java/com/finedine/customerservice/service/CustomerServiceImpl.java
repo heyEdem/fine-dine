@@ -17,11 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import static com.finedine.customerservice.util.CustomMessages.*;
-
 
 @Service
 @Slf4j
@@ -37,10 +33,6 @@ public class CustomerServiceImpl implements CustomerService {
     @SqsListener(value = "fds-customer-registration-queue.fifo")
     @Override
     public void createCustomer(CustomerCreationQueueObject data) {
-        List<String> addresses = new ArrayList<>();
-
-        addresses.add(data.address());
-
         log.info("Received new customer data: {}", data);
 
         Customer customer = customerMapper.toCustomer(data);
@@ -48,26 +40,22 @@ public class CustomerServiceImpl implements CustomerService {
         customerRepository.save(customer);
     }
 
-
     /**
      {@inheritDoc}
-    */
+     */
     @Override
     public Customer myProfile(SecurityUser securityUser) {
-
         Customer customer = findByExternalId(securityUser);
-
         validateTenant(securityUser, customer);
-
         return customer;
     }
-
 
     /**
      {@inheritDoc}
      */
     @Override
     public CustomerResponse profileSettings(SecurityUser securityUser, CustomerUpdateRequest request) {
+
         Customer customer = findByExternalId(securityUser);
 
         validateTenant(securityUser, customer);
@@ -77,7 +65,6 @@ public class CustomerServiceImpl implements CustomerService {
 
         return customerMapper.toCustomerResponse(customer);
     }
-
 
     /**
      {@inheritDoc}
@@ -89,8 +76,7 @@ public class CustomerServiceImpl implements CustomerService {
         return null;
     }
 
-
-    private Customer findByExternalId(SecurityUser securityUser){
+    private Customer findByExternalId(SecurityUser securityUser) {
         return customerRepository.findByExternalId(securityUser.externalId())
                 .orElseThrow(() -> new NotFoundException(CUSTOMER_NOT_FOUND));
     }

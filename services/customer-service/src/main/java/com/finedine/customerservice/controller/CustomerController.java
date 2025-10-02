@@ -27,7 +27,7 @@ public class CustomerController {
         return customerService.myProfile(securityUser);
     }
 
-    @GetMapping("/profile")
+    @PatchMapping("/profile")
     @PreAuthorize("hasRole('CUSTOMER')")
     @ResponseStatus(HttpStatus.OK)
     public CustomerResponse profileUpdate(@AuthenticationPrincipal SecurityUser securityUser,
