@@ -63,7 +63,9 @@ public class CustomerServiceImpl implements CustomerService {
         customerMapper.updateCustomerFromRequest(request, customer);
 
         if (request.address() != null && !request.address().isBlank()) {
-            customer.getAddress().add(request.address());
+            if (customer.getAddress() == null) {
+                customer.setAddress(new java.util.ArrayList<>());
+            }
         }
 
         customerRepository.save(customer);
